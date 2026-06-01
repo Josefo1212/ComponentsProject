@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Components Project</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<main class="page">
+		<section class="app-shell" aria-label="Aplicación integrada">
+			<header class="topbar">
+				<div>
+					<h2>Components Project</h2>
+				</div>
+				<div class="topbar-actions">
+					<popup-menu label="Acciones" placement="bottom-end">
+						<button type="button">Guardar</button>
+						<button type="button">Compartir</button>
+						<button type="button" data-target="tab-detalle">Acerca de</button>
+					</popup-menu>
+				</div>
+			</header>
+
+			<section class="workspace">
+				<section class="tabs" aria-label="Secciones de la aplicación">
+							<div class="tab-buttons" role="tablist">
+							<button class="tab-button is-active" role="tab" aria-selected="true" aria-controls="panel-flujo" id="tab-flujo">Inicio</button>
+							<button class="tab-button" role="tab" aria-selected="false" aria-controls="panel-detalle" id="tab-detalle" tabindex="-1">Sobre nosotros</button>
+							<button class="tab-button" role="tab" aria-selected="false" aria-controls="panel-ayuda" id="tab-ayuda" tabindex="-1">Qué es esto</button>
+						</div>
+
+					<div class="tab-panels">
+						<article class="tab-panel is-active" role="tabpanel" id="panel-flujo" aria-labelledby="tab-flujo">
+							<div class="panel-grid">
+								<div class="panel-card workflow">
+									<ui-stepper active-step="0">
+										<section class="step-panel" data-title="Crear cuenta" data-subtitle="Correo y contraseña" data-validate="required">
+											<h4>Crear cuenta</h4>
+											<p>Introduce tu correo y una contraseña segura.</p>
+											<label>
+												Correo
+												<input type="email" placeholder="usuario@correo.com">
+											</label>
+											<label>
+												Contraseña
+												<input type="password" placeholder="Contraseña">
+											</label>
+										</section>
+
+										<section class="step-panel" data-title="Perfil" data-subtitle="Tu nombre" data-validate="required">
+											<h4>Perfil</h4>
+											<p>Proporciona el nombre que se mostrará públicamente.</p>
+											<label>
+												Nombre
+												<input type="text" placeholder="Tu nombre">
+											</label>
+										</section>
+
+										<section class="step-panel" data-title="Biografía" data-subtitle="Opcional">
+											<h4>Agrega biografía (opcional)</h4>
+											<p>Escribe una breve biografía que se mostrará en tu perfil. Puedes omitirlo si prefieres.</p>
+											<label>
+												Biografía
+												<textarea placeholder="Escribe algo sobre ti" rows="4"></textarea>
+											</label>
+											<div style="margin-top:12px">
+												<p>Revisa tus datos y confirma para terminar.</p>
+												<button type="button" data-action="complete">Confirmar y crear</button>
+											</div>
+										</section>
+									</ui-stepper>
+								</div>
+
+								<div class="panel-card">
+									<h3>Panel</h3>
+									<p>Resumen del estado actual.</p>
+								</div>
+							</div>
+						</article>
+
+						<article class="tab-panel" role="tabpanel" id="panel-detalle" aria-labelledby="tab-detalle" hidden>
+							<div class="panel-grid">
+								<div class="panel-card">
+									<h3>Sobre nosotros</h3>
+									<p>Maria Bermudez, Jose fereira y laura ruidiaz.</p>
+								</div>
+								<div class="panel-card">
+									<h3>Misión</h3>
+									<p>Hacer componentes reutilizables y fáciles de integrar en páginas estáticas.</p>
+								</div>
+							</div>
+						</article>
+
+						<article class="tab-panel" role="tabpanel" id="panel-ayuda" aria-labelledby="tab-ayuda" hidden>
+							<div class="panel-grid">
+								<div class="panel-card">
+									<h3>¿Qué es esto?</h3>
+									<p>Una pequeña demo que combina un menú contextual, pestañas y un stepper para ilustrar UI composable.</p>
+								</div>
+								<div class="panel-card">
+									<h3>Cómo usar</h3>
+									<p>Navega entre pestañas, abre el menú para acciones y avanza en el stepper para completar tareas.</p>
+								</div>
+							</div>
+						</article>
+					</div>
+				</section>
+			</section>
+	</main>
+
+	<script src="../TAB/Tab.js"></script>
+	<script src="../popupmenu/PopupMenu.js"></script>
+	<script src="../steaper/Stepper.js?v=2"></script>
+	<script src="index.js"></script>
+</body>
+</html>

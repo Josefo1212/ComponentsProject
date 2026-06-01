@@ -1,0 +1,62 @@
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	font-family: Arial, sans-serif;
+	background:
+		radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 30%),
+		linear-gradient(180deg, #f8fafc, #e2e8f0);
+	color: #0f172a;
+}
+
+.page {
+	min-height: 100vh;
+	display: grid;
+	place-items: center;
+	padding: 32px 16px;
+}
+
+.step-panel {
+	display: grid;
+	gap: 16px;
+}
+
+.step-panel h2 {
+	margin: 0;
+	font-size: 1.6rem;
+}
+
+.step-panel p {
+	margin: 0;
+	color: #475569;
+	line-height: 1.5;
+}
+
+.step-panel label {
+	display: grid;
+	gap: 8px;
+	font-weight: 700;
+	color: #334155;
+}
+
+.step-panel input {
+	padding: 12px 14px;
+	border-radius: 12px;
+	border: 1px solid #cbd5e1;
+	font: inherit;
+	background: #fff;
+}
+
+.step-panel button {
+	justify-self: start;
+	padding: 12px 18px;
+	border: 0;
+	border-radius: 999px;
+	background: #2563eb;
+	color: #fff;
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+}
