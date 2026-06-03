@@ -50,26 +50,3 @@ if (aboutBtn) {
 	});
 }
 
-// Manejo de la acción de confirmación del stepper: mostrar mensaje "Usuario creado"
-document.addEventListener('click', (e) => {
-	const btn = e.target.closest('button[data-action="complete"]');
-	if (!btn) return;
-	e.preventDefault();
-	// Encontrar el panel padre y reemplazar su contenido por el mensaje de éxito
-	const panel = btn.closest('.step-panel');
-	if (panel) {
-		panel.innerHTML = `<h4>Usuario creado</h4><p>El usuario se creó correctamente.</p>`;
-	}
-
-	// Si existe el stepper, marcar el paso como completado y sincronizar estado
-	const stepper = document.querySelector('ui-stepper');
-	if (stepper && typeof stepper.getStepElements === 'function') {
-		const panels = stepper.getStepElements();
-		const idx = panels.indexOf(panel);
-		if (idx >= 0) {
-			if (!stepper.stepCompletion) stepper.stepCompletion = [];
-			stepper.stepCompletion[idx] = true;
-			if (typeof stepper.syncState === 'function') stepper.syncState();
-		}
-	}
-});
