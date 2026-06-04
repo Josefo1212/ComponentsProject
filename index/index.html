@@ -34,11 +34,11 @@
 											<p>Introduce tu correo y una contraseña segura.</p>
 											<label>
 												Correo
-												<input type="email" placeholder="usuario@correo.com">
+												<input type="email" name="email" data-label="Correo" placeholder="usuario@correo.com" autocomplete="email">
 											</label>
 											<label>
 												Contraseña
-												<input type="password" placeholder="Contraseña">
+												<input type="password" name="password" data-label="Contrasena" data-sensitive="true" placeholder="Contrasena" autocomplete="new-password">
 											</label>
 										</section>
 
@@ -47,7 +47,7 @@
 											<p>Proporciona el nombre que se mostrará públicamente.</p>
 											<label>
 												Nombre
-												<input type="text" placeholder="Tu nombre">
+												<input type="text" name="displayName" data-label="Nombre" placeholder="Tu nombre" autocomplete="name">
 											</label>
 										</section>
 
@@ -56,7 +56,7 @@
 											<p>Escribe una breve biografía que se mostrará en tu perfil. Puedes omitirlo si prefieres.</p>
 											<label>
 												Biografía
-												<textarea placeholder="Escribe algo sobre ti" rows="4"></textarea>
+												<textarea name="bio" data-label="Biografia" placeholder="Escribe algo sobre ti" rows="4"></textarea>
 											</label>
 											<div style="margin-top:12px">
 												<p>Revisa tus datos y confirma para terminar.</p>
@@ -66,9 +66,10 @@
 									</ui-stepper>
 								</div>
 
-								<div class="panel-card">
+								<div class="panel-card panel-status" id="status-card">
 									<h3>Panel</h3>
-									<p>Resumen del estado actual.</p>
+									<p class="panel-subtitle">Resumen del estado actual.</p>
+									<div class="status-block" id="panel-status" aria-live="polite"></div>
 								</div>
 							</div>
 						</article>
@@ -77,11 +78,15 @@
 							<div class="panel-grid">
 								<div class="panel-card">
 									<h3>Sobre nosotros</h3>
-									<p>Maria Bermudez, Jose fereira y laura ruidiaz.</p>
+									<p>Somos Maria Bermudez, Jose Fereira y Laura Ruidiaz, Maria se enfoca en la investigacion de UX y la claridad del contenido; Jose se encarga de la arquitectura en JavaScript y la logica de componentes y Laura lidera el sistema visual para que la interfaz sea consistente, accesible y agradable</p>
 								</div>
 								<div class="panel-card">
-									<h3>Misión</h3>
-									<p>Hacer componentes reutilizables y fáciles de integrar en páginas estáticas.</p>
+									<h3>Ingenieria del proyecto</h3>
+									<p>Components Project divide el trabajo en un App Shell y un componente encapsulado en Shadow DOM. Esta separacion permite que el stepper sea reutilizable en otras paginas sin romper estilos ni logica.</p>
+								</div>
+								<div class="panel-card">
+									<h3>Mision</h3>
+									<p>Crear componentes UI confiables, accesibles y coherentes, listos para integrarse en proyectos escolares o profesionales. Cada pieza busca ser simple de usar, clara en su proposito y flexible para futuras extensiones.</p>
 								</div>
 							</div>
 						</article>
@@ -89,12 +94,13 @@
 						<article class="tab-panel" role="tabpanel" id="panel-ayuda" aria-labelledby="tab-ayuda" hidden>
 							<div class="panel-grid">
 								<div class="panel-card">
-									<h3>¿Qué es esto?</h3>
-									<p>Una pequeña demo que combina un menú contextual, pestañas y un stepper para ilustrar UI composable.</p>
+									<h3>¿Que es esto?</h3>
+									<p>Es una demo realista pensada para clases de desarrollo web: muestra como construir un flujo guiado de registro usando componentes nativos, sin frameworks, pero con buenas practicas de accesibilidad y estados.</p>
+									<p>La idea es que puedas leer el codigo y entenderlo rapido: el App Shell maneja la navegacion por pestañas y el stepper vive aislado en Shadow DOM para evitar fugas de estilos.</p>
 								</div>
 								<div class="panel-card">
-									<h3>Cómo usar</h3>
-									<p>Navega entre pestañas, abre el menú para acciones y avanza en el stepper para completar tareas.</p>
+									<h3>Como usar</h3>
+									<p>Completa cada paso en orden. El panel derecho te da un resumen del progreso y de lo que falta para continuar. Cuando confirmes el ultimo paso, el estado del proceso se actualiza automaticamente.</p>
 								</div>
 							</div>
 						</article>
