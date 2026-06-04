@@ -1,7 +1,38 @@
 const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
 const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
 
+const activatePanel = (panel) => {
+	if (!panel) return;
+	panel.hidden = false;
+	panel.classList.remove("is-leaving");
+	panel.setAttribute("aria-hidden", "false");
+	requestAnimationFrame(() => {
+		panel.classList.add("is-active");
+	});
+};
+
+const deactivatePanel = (panel) => {
+	if (!panel) return;
+	panel.classList.remove("is-active");
+	panel.classList.add("is-leaving");
+	panel.setAttribute("aria-hidden", "true");
+	const handleTransitionEnd = (event) => {
+		if (event.propertyName !== "opacity") return;
+		panel.hidden = true;
+		panel.classList.remove("is-leaving");
+		panel.removeEventListener("transitionend", handleTransitionEnd);
+	};
+	panel.addEventListener("transitionend", handleTransitionEnd);
+};
+
 const setActiveTab = (button) => {
+	const targetId = button.getAttribute("aria-controls");
+	const nextPanel = tabPanels.find((panel) => panel.id === targetId);
+	const currentPanel = tabPanels.find((panel) => panel.classList.contains("is-active"));
+	if (nextPanel === currentPanel) {
+		return;
+	}
+
 	tabButtons.forEach((tabButton) => {
 		const isActive = tabButton === button;
 		tabButton.classList.toggle("is-active", isActive);
@@ -9,15 +40,20 @@ const setActiveTab = (button) => {
 		tabButton.tabIndex = isActive ? 0 : -1;
 	});
 
-	tabPanels.forEach((panel) => {
-		const isActive = panel.id === button.getAttribute("aria-controls");
-		panel.classList.toggle("is-active", isActive);
-		panel.hidden = !isActive;
-	});
+	if (currentPanel) {
+		deactivatePanel(currentPanel);
+	}
+	activatePanel(nextPanel);
 };
 
 tabButtons.forEach((button) => {
 	button.addEventListener("click", () => setActiveTab(button));
+});
+
+tabPanels.forEach((panel) => {
+	const isActive = panel.classList.contains("is-active");
+	panel.hidden = !isActive;
+	panel.setAttribute("aria-hidden", String(!isActive));
 });
 
 // Delegated handler: permitir que elementos con `data-target` activen pestañas

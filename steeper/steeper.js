@@ -223,9 +223,9 @@ class UiStepper extends HTMLElement {
 				.shell {
 					padding: 24px;
 					border-radius: 24px;
-					background: var(--surface, rgba(20, 30, 52, 0.92));
-					border: 1px solid var(--border, rgba(148, 163, 184, 0.2));
-					box-shadow: var(--shadow, 0 24px 60px rgba(3, 7, 18, 0.45));
+					background: var(--gradient-card-2, linear-gradient(160deg, rgba(18, 24, 70, 0.95), rgba(62, 24, 112, 0.88)));
+					border: 1px solid var(--border, rgba(132, 104, 200, 0.28));
+					box-shadow: var(--shadow, 0 24px 60px rgba(4, 6, 24, 0.55));
 				}
 
 				.steps {
@@ -240,9 +240,9 @@ class UiStepper extends HTMLElement {
 					align-items: center;
 					gap: 12px;
 					padding: 12px 14px;
-					border: 1px solid var(--border, rgba(148, 163, 184, 0.2));
+					border: 1px solid var(--border, rgba(132, 104, 200, 0.28));
 					border-radius: 16px;
-					background: var(--surface-2, rgba(24, 35, 58, 0.92));
+					background: var(--surface-2, rgba(26, 31, 74, 0.92));
 					color: var(--text, #e6edf7);
 					font: inherit;
 					cursor: default;
@@ -256,9 +256,9 @@ class UiStepper extends HTMLElement {
 				}
 
 				.step-button[aria-current="step"] {
-					background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(14, 116, 144, 0.7));
+					background: var(--gradient-accent, linear-gradient(130deg, rgba(59, 130, 246, 0.25), rgba(139, 92, 246, 0.75)));
 					color: var(--text, #e6edf7);
-					border-color: rgba(34, 211, 238, 0.55);
+					border-color: rgba(139, 92, 246, 0.6);
 				}
 
 				.badge {
@@ -267,7 +267,7 @@ class UiStepper extends HTMLElement {
 					width: 28px;
 					height: 28px;
 					border-radius: 999px;
-					background: var(--accent-soft, rgba(34, 211, 238, 0.15));
+					background: linear-gradient(140deg, rgba(59, 130, 246, 0.25), rgba(139, 92, 246, 0.25));
 					font-weight: 700;
 					flex: none;
 				}
@@ -294,8 +294,8 @@ class UiStepper extends HTMLElement {
 					min-height: 180px;
 					padding: 20px;
 					border-radius: 20px;
-					background: linear-gradient(180deg, rgba(20, 30, 52, 0.7), rgba(18, 27, 46, 0.9));
-					border: 1px solid var(--border, rgba(148, 163, 184, 0.2));
+					background: var(--gradient-card, linear-gradient(160deg, rgba(18, 24, 70, 0.95), rgba(62, 24, 112, 0.88)));
+					border: 1px solid var(--border, rgba(132, 104, 200, 0.28));
 				}
 
 				.content ::slotted(*) {
@@ -320,17 +320,28 @@ class UiStepper extends HTMLElement {
 					font: inherit;
 					font-weight: 700;
 					cursor: pointer;
+					transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 				}
 
 				.nav-button[data-action='prev'] {
-					background: rgba(15, 23, 42, 0.75);
+					background: rgba(12, 16, 40, 0.8);
 					color: var(--text, #e6edf7);
-					border: 1px solid var(--border, rgba(148, 163, 184, 0.2));
+					border: 1px solid var(--border, rgba(132, 104, 200, 0.28));
 				}
 
 				.nav-button[data-action='next'] {
-					background: linear-gradient(120deg, var(--accent, #22d3ee), var(--accent-2, #38bdf8));
+					background: var(--gradient-accent-strong, linear-gradient(120deg, #3b82f6, #8b5cf6));
 					color: #0b1020;
+				}
+
+				.nav-button:hover:not(:disabled) {
+					transform: translateY(-1px);
+					box-shadow: 0 12px 22px rgba(59, 130, 246, 0.35);
+				}
+
+				.nav-button:focus-visible {
+					outline: none;
+					box-shadow: var(--ring, 0 0 0 3px rgba(99, 102, 241, 0.55));
 				}
 
 				.nav-button:disabled {
