@@ -1,68 +1,17 @@
-const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
-const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
-
-const activatePanel = (panel) => {
-	if (!panel) return;
-	panel.hidden = false;
-	panel.classList.remove("is-leaving");
-	panel.setAttribute("aria-hidden", "false");
-	requestAnimationFrame(() => {
-		panel.classList.add("is-active");
-	});
-};
-
-const deactivatePanel = (panel) => {
-	if (!panel) return;
-	panel.classList.remove("is-active");
-	panel.classList.add("is-leaving");
-	panel.setAttribute("aria-hidden", "true");
-	const handleTransitionEnd = (event) => {
-		if (event.propertyName !== "opacity") return;
-		panel.hidden = true;
-		panel.classList.remove("is-leaving");
-		panel.removeEventListener("transitionend", handleTransitionEnd);
-	};
-	panel.addEventListener("transitionend", handleTransitionEnd);
-};
-
-const setActiveTab = (button) => {
-	const targetId = button.getAttribute("aria-controls");
-	const nextPanel = tabPanels.find((panel) => panel.id === targetId);
-	const currentPanel = tabPanels.find((panel) => panel.classList.contains("is-active"));
-	if (nextPanel === currentPanel) {
-		return;
-	}
-
-	tabButtons.forEach((tabButton) => {
-		const isActive = tabButton === button;
-		tabButton.classList.toggle("is-active", isActive);
-		tabButton.setAttribute("aria-selected", String(isActive));
-		tabButton.tabIndex = isActive ? 0 : -1;
-	});
-
-	if (currentPanel) {
-		deactivatePanel(currentPanel);
-	}
-	activatePanel(nextPanel);
-};
-
-tabButtons.forEach((button) => {
-	button.addEventListener("click", () => setActiveTab(button));
-});
-
-tabPanels.forEach((panel) => {
-	const isActive = panel.classList.contains("is-active");
-	panel.hidden = !isActive;
-	panel.setAttribute("aria-hidden", String(!isActive));
-});
-
 // Delegated handler: permitir que elementos con `data-target` activen pestañas
 document.addEventListener('click', (e) => {
 	const el = e.target.closest('[data-target]');
 	if (!el) return;
 	const targetId = el.dataset.target;
-	const targetButton = document.getElementById(targetId);
-	if (targetButton) targetButton.click();
+	const uiTabs = document.querySelector('ui-tabs');
+	if (uiTabs) {
+		const cleanId = targetId.startsWith('tab-') ? targetId.replace('tab-', 'panel-') : targetId;
+		const panels = uiTabs.getPanels();
+		const hasPanel = panels.some(p => p.id === cleanId);
+		if (hasPanel) {
+			uiTabs.activeTab = cleanId;
+		}
+	}
 });
 
 const stepper = document.querySelector("ui-stepper");

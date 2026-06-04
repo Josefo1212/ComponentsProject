@@ -17,15 +17,8 @@
 			</header>
 
 			<section class="workspace">
-				<section class="tabs" aria-label="Secciones de la aplicación">
-							<div class="tab-buttons" role="tablist">
-							<button class="tab-button is-active" role="tab" aria-selected="true" aria-controls="panel-flujo" id="tab-flujo">Inicio</button>
-							<button class="tab-button" role="tab" aria-selected="false" aria-controls="panel-detalle" id="tab-detalle" tabindex="-1">Sobre nosotros</button>
-							<button class="tab-button" role="tab" aria-selected="false" aria-controls="panel-ayuda" id="tab-ayuda" tabindex="-1">Qué es esto</button>
-						</div>
-
-					<div class="tab-panels">
-						<article class="tab-panel is-active" role="tabpanel" id="panel-flujo" aria-labelledby="tab-flujo">
+				<ui-tabs id="main-tabs" active-tab="panel-flujo">
+						<article class="tab-panel is-active" role="tabpanel" id="panel-flujo" data-tab-title="Inicio" aria-labelledby="tab-flujo">
 							<div class="panel-grid">
 								<div class="panel-card workflow">
 									<ui-stepper active-step="0">
@@ -74,7 +67,7 @@
 							</div>
 						</article>
 
-						<article class="tab-panel" role="tabpanel" id="panel-detalle" aria-labelledby="tab-detalle" hidden>
+						<article class="tab-panel" role="tabpanel" id="panel-detalle" data-tab-title="Sobre nosotros" aria-labelledby="tab-detalle" hidden>
 							<div class="panel-grid">
 								<div class="panel-card">
 									<h3>Sobre nosotros</h3>
@@ -91,7 +84,7 @@
 							</div>
 						</article>
 
-						<article class="tab-panel" role="tabpanel" id="panel-ayuda" aria-labelledby="tab-ayuda" hidden>
+						<article class="tab-panel" role="tabpanel" id="panel-ayuda" data-tab-title="Qué es esto" aria-labelledby="tab-ayuda" hidden>
 							<div class="panel-grid">
 								<div class="panel-card">
 									<h3>¿Que es esto?</h3>
@@ -104,11 +97,11 @@
 								</div>
 							</div>
 						</article>
-					</div>
-				</section>
+				</ui-tabs>
 			</section>
 	</main>
 
+	<script src="../TAB/Tab.js"></script>
 	<script src="../steeper/steeper.js"></script>
 	<script src="index.js"></script>
 </body>
