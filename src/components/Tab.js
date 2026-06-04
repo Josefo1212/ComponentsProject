@@ -142,61 +142,7 @@ class UiTabs extends HTMLElement {
 		panel.addEventListener("transitionend", handleTransitionEnd);
 	}
 
-	render() {
-		this.shadowRoot.innerHTML = `
-			<style>
-				:host {
-					display: block;
-					width: 100%;
-					background: var(--surface, #ffffff);
-					border: 1px solid var(--border, #dddddd);
-					border-radius: 16px;
-					padding: 16px;
-					overflow: visible;
-				}
-
-				.tab-buttons {
-					display: flex;
-					gap: 8px;
-					margin-bottom: 12px;
-					flex-wrap: wrap;
-				}
-
-				.tab-button {
-					border: 1px solid var(--border, #cccccc);
-					background: rgba(13, 18, 45, 0.6);
-					padding: 8px 12px;
-					border-radius: 999px;
-					cursor: pointer;
-					color: var(--text, #222222);
-					font: inherit;
-					transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-				}
-
-				.tab-button:hover {
-					transform: translateY(-1px);
-					border-color: rgba(139, 92, 246, 0.6);
-					background: var(--gradient-accent, #eeeeee);
-				}
-
-				.tab-button[aria-selected="true"] {
-					background: var(--gradient-accent, #222222);
-					color: var(--text, #ffffff);
-					border-color: rgba(139, 92, 246, 0.6);
-					box-shadow: 0 10px 20px rgba(46, 29, 95, 0.5);
-				}
-
-				.tab-button:focus-visible {
-					outline: none;
-					box-shadow: var(--ring, 0 0 0 3px rgba(99, 102, 241, 0.5));
-				}
-			</style>
-			<div class="tab-buttons" role="tablist"></div>
-			<div class="tab-panels">
-				<slot></slot>
-			</div>
-		`;
-	}
+	render() {}
 }
 
 customElements.define("ui-tabs", UiTabs);
