@@ -12,7 +12,9 @@ class UiTabs extends HTMLElement {
 	connectedCallback() {
 		this.render();
 		this.slotElement = this.shadowRoot.querySelector("slot");
-		this.slotElement.addEventListener("slotchange", this.handleSlotChange);
+		if (this.slotElement) {
+			this.slotElement.addEventListener("slotchange", this.handleSlotChange);
+		}
 		this.handleSlotChange();
 	}
 
@@ -23,9 +25,9 @@ class UiTabs extends HTMLElement {
 	}
 
 	attributeChangedCallback(name, oldValue, newValue) {
-		if (!this.shadowRoot) return;
 		if (name === "active-tab" && oldValue !== newValue) {
-			this.syncState(oldValue, newValue);
+			this.updateVisibility(newValue);
+			this.updateButtons(newValue);
 		}
 	}
 
@@ -41,108 +43,89 @@ class UiTabs extends HTMLElement {
 		const slot = this.shadowRoot.querySelector("slot");
 		if (!slot) return [];
 		return slot.assignedElements({ flatten: true })
-			.filter(el => el.classList.contains("tab-panel") || el.tagName.toLowerCase() === "article");
+			.filter(el => el.classList?.contains("tab-panel"));
 	}
 
 	handleSlotChange() {
 		const panels = this.getPanels();
-		
 		if (!this.activeTab && panels.length > 0) {
 			this.activeTab = panels[0].id;
 		}
-
-		panels.forEach((panel) => {
-			const isActive = panel.id === this.activeTab;
-			panel.hidden = !isActive;
-			panel.setAttribute("aria-hidden", String(!isActive));
-			if (isActive) {
-				panel.classList.add("is-active");
-				panel.classList.remove("is-leaving");
-			} else {
-				panel.classList.remove("is-active", "is-leaving");
-			}
-		});
-
+		this.updateVisibility(this.activeTab);
 		this.renderButtons();
 	}
 
+	updateVisibility(activeId) {
+		const panels = this.getPanels();
+		panels.forEach(panel => {
+			const isActive = panel.id === activeId;
+			panel.hidden = !isActive;
+			if (isActive) {
+				panel.style.display = '';
+			} else {
+				panel.style.display = 'none';
+			}
+		});
+	}
+
+	updateButtons(activeId) {
+		const buttons = this.shadowRoot.querySelectorAll(".tab-btn");
+		buttons.forEach(btn => {
+			const isActive = btn.getAttribute("data-panel-id") === activeId;
+			if (isActive) {
+				btn.classList.add("active");
+			} else {
+				btn.classList.remove("active");
+			}
+		});
+	}
+
 	renderButtons() {
-		const buttonsContainer = this.shadowRoot.querySelector(".tab-buttons");
-		if (!buttonsContainer) return;
+		const container = this.shadowRoot.querySelector(".tabs-buttons");
+		if (!container) return;
 
 		const panels = this.getPanels();
-		buttonsContainer.innerHTML = panels.map((panel) => {
-			const title = panel.getAttribute("data-tab-title") || panel.getAttribute("data-title") || panel.getAttribute("title") || panel.id;
+		container.innerHTML = panels.map(panel => {
+			const title = panel.getAttribute("data-tab-title") || panel.id;
 			const isActive = panel.id === this.activeTab;
 			return `
-				<button 
-					class="tab-button" 
-					role="tab" 
-					aria-selected="${isActive}" 
-					aria-controls="${panel.id}" 
-					id="tab-${panel.id}"
-					tabindex="${isActive ? "0" : "-1"}"
-					type="button"
-				>
-					${title}
+				<button class="tab-btn ${isActive ? 'active' : ''}" data-panel-id="${panel.id}">
+					${this.escapeHtml(title)}
 				</button>
 			`;
 		}).join("");
 
-		const buttons = buttonsContainer.querySelectorAll(".tab-button");
-		buttons.forEach((btn) => {
+		const buttons = container.querySelectorAll(".tab-btn");
+		buttons.forEach(btn => {
 			btn.addEventListener("click", () => {
-				const targetPanelId = btn.getAttribute("aria-controls");
-				this.activeTab = targetPanelId;
+				this.activeTab = btn.getAttribute("data-panel-id");
 			});
 		});
 	}
 
-	syncState(oldTabId, newTabId) {
-		const panels = this.getPanels();
-		const currentPanel = panels.find(p => p.id === oldTabId);
-		const nextPanel = panels.find(p => p.id === newTabId);
-
-		const buttons = this.shadowRoot.querySelectorAll(".tab-button");
-		buttons.forEach((btn) => {
-			const isSelected = btn.getAttribute("aria-controls") === newTabId;
-			btn.setAttribute("aria-selected", String(isSelected));
-			btn.tabIndex = isSelected ? 0 : -1;
-		});
-
-		if (currentPanel && currentPanel !== nextPanel) {
-			this.deactivatePanel(currentPanel);
-		}
-		if (nextPanel) {
-			this.activatePanel(nextPanel);
-		}
-	}
-
-	activatePanel(panel) {
-		if (!panel) return;
-		panel.hidden = false;
-		panel.classList.remove("is-leaving");
-		panel.setAttribute("aria-hidden", "false");
-		requestAnimationFrame(() => {
-			panel.classList.add("is-active");
+	escapeHtml(str) {
+		if (!str) return "";
+		return str.replace(/[&<>]/g, function(m) {
+			if (m === '&') return '&amp;';
+			if (m === '<') return '&lt;';
+			if (m === '>') return '&gt;';
+			return m;
 		});
 	}
 
-	deactivatePanel(panel) {
-		if (!panel) return;
-		panel.classList.remove("is-active");
-		panel.classList.add("is-leaving");
-		panel.setAttribute("aria-hidden", "true");
-		const handleTransitionEnd = (event) => {
-			if (event.propertyName !== "opacity") return;
-			panel.hidden = true;
-			panel.classList.remove("is-leaving");
-			panel.removeEventListener("transitionend", handleTransitionEnd);
-		};
-		panel.addEventListener("transitionend", handleTransitionEnd);
+	render() {
+		this.shadowRoot.innerHTML = `
+			<style>
+				@import url('../css/tab.css');
+			</style>
+			<div class="tabs-header">
+				<div class="tabs-buttons"></div>
+			</div>
+			<div class="tabs-content">
+				<slot></slot>
+			</div>
+		`;
 	}
-
-	render() {}
 }
 
 customElements.define("ui-tabs", UiTabs);

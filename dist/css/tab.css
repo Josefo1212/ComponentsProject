@@ -1,1 +1,80 @@
+@import url('../css/index.css');
 
+:host {
+  display: block;
+  width: 100%;
+}
+
+.tabs-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0 var(--space-2xl);
+}
+
+.tabs-buttons {
+  display: flex;
+  gap: 0;
+  position: relative;
+}
+
+.tab-btn {
+  padding: 1rem 1.75rem;
+  background: transparent;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-caption);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  position: relative;
+  margin: 0;
+  outline: none;
+  border-radius: 0;
+}
+
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 1rem;
+  right: 1rem;
+  height: 2px;
+  background: transparent;
+  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+.tab-btn:hover {
+  color: var(--text-headline);
+  background: var(--accent-glow);
+  letter-spacing: 0.2em;
+}
+
+.tab-btn.active {
+  color: var(--accent-primary);
+}
+
+.tab-btn.active::after {
+  background: var(--accent-primary);
+}
+
+.tab-btn:focus-visible {
+  outline: none;
+  background: var(--accent-glow);
+  color: var(--accent-primary);
+}
+
+.tabs-content {
+  padding: 0;
+}
+
+::slotted(.tab-panel) {
+  display: block;
+  transition: all 0.3s ease;
+}
+
+::slotted(.tab-panel[hidden]) {
+  display: none !important;
+}

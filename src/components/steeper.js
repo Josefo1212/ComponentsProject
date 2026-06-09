@@ -3,10 +3,9 @@ class UiStepper extends HTMLElement {
 		super();
 		this.attachShadow({ mode: "open" });
 		this.handleSlotChange = this.handleSlotChange.bind(this);
-		this.stepCompletion = [];
-		this.handleInternalComplete = this.handleInternalComplete.bind(this);
-		this.handleInternalInput = this.handleInternalInput.bind(this);
-		this._lastReason = "init";
+		this._currentStep = 0;
+		this._totalSteps = 0;
+		this._steps = [];
 	}
 
 	static get observedAttributes() {
@@ -16,9 +15,15 @@ class UiStepper extends HTMLElement {
 	connectedCallback() {
 		this.render();
 		this.slotElement = this.shadowRoot.querySelector("slot");
-		this.slotElement.addEventListener("slotchange", this.handleSlotChange);
-		this.shadowRoot.querySelector("[data-action='prev']").addEventListener("click", () => this.previous());
-		this.shadowRoot.querySelector("[data-action='next']").addEventListener("click", () => this.next());
+		if (this.slotElement) {
+			this.slotElement.addEventListener("slotchange", this.handleSlotChange);
+		}
+		
+		const prevBtn = this.shadowRoot.querySelector("[data-action='prev']");
+		const nextBtn = this.shadowRoot.querySelector("[data-action='next']");
+		if (prevBtn) prevBtn.addEventListener("click", () => this.previous());
+		if (nextBtn) nextBtn.addEventListener("click", () => this.next());
+		
 		this.handleSlotChange();
 	}
 
@@ -28,233 +33,222 @@ class UiStepper extends HTMLElement {
 		}
 	}
 
-	attributeChangedCallback(name, oldValue, newValue) {
-		if (!this.shadowRoot) {
-			return;
-		}
-		if (name === "active-step" && oldValue !== newValue && !this._lastReason) {
-			this._lastReason = "step-change";
-		}
-		this.syncState();
-	}
-
 	get activeStep() {
-		const value = Number.parseInt(this.getAttribute("active-step") || "0", 10);
-		return Number.isNaN(value) ? 0 : value;
+		return this._currentStep;
 	}
 
 	set activeStep(value) {
-		const nextValue = Math.max(0, value);
-		this.setAttribute("active-step", String(nextValue));
+		const newStep = Math.max(0, Math.min(value, this._totalSteps - 1));
+		if (newStep !== this._currentStep) {
+			this._currentStep = newStep;
+			this.updateVisibility();
+			this.updateButtons();
+			this.emitUpdate();
+		}
 	}
 
-	get steps() {
-		return this.stepElements || [];
+	isCurrentStepValid() {
+		const currentPanel = this._steps[this._currentStep];
+		if (!currentPanel) return false;
+		
+		const inputs = currentPanel.querySelectorAll('input, textarea');
+		if (inputs.length === 0) return true;
+		
+		let allFilled = true;
+		inputs.forEach(input => {
+			if (input.type === 'hidden') return;
+			const value = input.value?.trim() || '';
+			if (value === '') {
+				allFilled = false;
+				input.style.borderColor = '#ff4444';
+				input.style.boxShadow = '0 0 0 1px #ff4444';
+				setTimeout(() => {
+					input.style.borderColor = '';
+					input.style.boxShadow = '';
+				}, 1500);
+			}
+		});
+		
+		return allFilled;
 	}
 
 	next() {
-		if (this.activeStep < this.steps.length - 1) {
-			// validar/chequear si el paso actual permite avanzar
-			if (!this.isStepValid(this.activeStep)) {
-				// intentar enfocar el primer campo inválido si existe
-				const current = this.steps[this.activeStep];
-				if (current) {
-					const fields = Array.from(current.querySelectorAll('input, textarea, select')).filter(
-						(field) => field.type !== 'hidden' && !field.disabled
-					);
-					const firstInvalid = fields.find((field) => String(field.value || '').trim().length === 0);
-					if (firstInvalid) firstInvalid.focus();
-				}
-				return;
+		if (this._currentStep < this._totalSteps - 1) {
+			if (this.isCurrentStepValid()) {
+				this.activeStep = this._currentStep + 1;
+			} else {
+				this.showToast('Completa todos los campos antes de continuar', '#ff4444');
 			}
-			this._lastReason = "next";
-			this.activeStep = this.activeStep + 1;
 		}
 	}
 
 	previous() {
-		if (this.activeStep > 0) {
-			this._lastReason = "prev";
-			this.activeStep = this.activeStep - 1;
+		if (this._currentStep > 0) {
+			this.activeStep = this._currentStep - 1;
 		}
+	}
+
+	complete() {
+		if (this.isCurrentStepValid()) {
+			this.showToast('Formulario completado exitosamente', '#00cc66');
+			this.dispatchEvent(new CustomEvent("stepper:completed", {
+				detail: { 
+					activeStep: this._currentStep, 
+					totalSteps: this._totalSteps,
+					completed: true
+				},
+				bubbles: true,
+				composed: true
+			}));
+		} else {
+			this.showToast('Completa todos los campos antes de finalizar', '#ff4444');
+		}
+	}
+
+	showToast(message, color) {
+		const toast = document.createElement('div');
+		toast.textContent = message;
+		toast.style.cssText = `
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			background: ${color};
+			color: #ffffff;
+			padding: 12px 24px;
+			border-radius: 40px;
+			font-family: monospace;
+			font-size: 0.7rem;
+			font-weight: 600;
+			letter-spacing: 1px;
+			z-index: 1000;
+			animation: slideInRight 0.3s ease;
+		`;
+		document.body.appendChild(toast);
+		setTimeout(() => {
+			toast.style.animation = 'fadeOut 0.3s ease';
+			setTimeout(() => toast.remove(), 300);
+		}, 2500);
 	}
 
 	handleSlotChange() {
-		this.stepElements = this.getStepElements();
-		// inicializar estados de completado
-		this.stepCompletion = this.stepElements.map(() => false);
-		// preparar listeners internos para botones de completado
-		this.stepElements.forEach((el, idx) => {
-			const completeBtn = el.querySelector('[data-action="complete"], [data-complete-button]');
-			if (completeBtn) {
-				completeBtn.removeEventListener('click', this.handleInternalComplete);
-				completeBtn.addEventListener('click', this.handleInternalComplete);
-				// almacenar índice en dataset para el handler
-				completeBtn.dataset._stepIndex = String(idx);
-			}
-			// input/change listeners to re-evaluate validation
-			el.removeEventListener('input', this.handleInternalInput);
-			el.removeEventListener('change', this.handleInternalInput);
-			el.addEventListener('input', this.handleInternalInput);
-			el.addEventListener('change', this.handleInternalInput);
-		});
-		this._lastReason = "init";
-		this.syncState();
-	}
-
-	handleInternalComplete(e) {
-		const btn = e.currentTarget;
-		const idx = Number.parseInt(btn.dataset._stepIndex || '0', 10);
-		this.stepCompletion[idx] = true;
-		this._lastReason = "complete";
-		this.syncState();
-	}
-
-	handleInternalInput() {
-		// re-evaluar validación cuando cambian inputs dentro de un paso
-		this._lastReason = "input";
-		this.syncState();
-	}
-
-	getStepElements() {
 		const slot = this.shadowRoot.querySelector("slot");
-		return slot ? slot.assignedElements({ flatten: true }).filter((element) => element.nodeType === Node.ELEMENT_NODE) : [];
-	}
-
-	getFieldLabel(field) {
-		if (field.dataset && field.dataset.label) {
-			return field.dataset.label;
-		}
-		const label = field.closest('label');
-		if (label) {
-			const textParts = Array.from(label.childNodes)
-				.filter((node) => node.nodeType === Node.TEXT_NODE)
-				.map((node) => node.textContent.trim())
-				.filter(Boolean);
-			if (textParts.length) return textParts.join(' ');
-		}
-		return field.getAttribute('aria-label') || field.name || field.id || 'Campo';
-	}
-
-	collectState() {
-		const steps = this.steps.map((step, index) => {
-			const title = step.getAttribute("data-title") || step.getAttribute("title") || `Paso ${index + 1}`;
-			const subtitle = step.getAttribute("data-subtitle") || "";
-			const fields = Array.from(step.querySelectorAll('input, textarea, select')).filter(
-				(field) => field.type !== 'hidden'
-			);
-			const mappedFields = fields.map((field) => ({
-				label: this.getFieldLabel(field),
-				name: field.name || field.id || field.getAttribute('aria-label') || '',
-				value: field.type === 'password' || field.dataset.sensitive === 'true'
-					? field.value
-						? '••••••'
-						: ''
-					: field.value
-						? String(field.value)
-						: '',
-				type: field.type || field.tagName.toLowerCase(),
-			}));
-			const filledCount = mappedFields.filter((field) => field.value.trim().length > 0).length;
-			return {
-				index,
-				title,
-				subtitle,
-				required: step.getAttribute('data-validate') === 'required',
-				fields: mappedFields,
-				filledCount,
-				totalFields: mappedFields.length,
-				isComplete: !!this.stepCompletion[index],
-				isValid: this.isStepValid(index),
-			};
-		});
-
-		return {
-			activeStep: this.activeStep,
-			totalSteps: steps.length,
-			steps,
-			completion: [...this.stepCompletion],
-		};
-	}
-
-	emitStatus(reason = "update") {
-		const detail = {
-			reason,
-			...this.collectState(),
-		};
-		this.dispatchEvent(
-			new CustomEvent("stepper:update", {
-				detail,
-				bubbles: true,
-				composed: true,
-			})
-		);
-	}
-
-	isStepValid(index) {
-		const step = this.steps[index];
-		if (!step) return true;
-		// si tiene un botón interno que debe completar la acción
-		if (step.querySelector('[data-action="complete"], [data-complete-button]')) {
-			return !!this.stepCompletion[index];
-		}
-		// si tiene data-validate="required" validar inputs/textarea
-		if (step.getAttribute('data-validate') === 'required') {
-			const inputs = Array.from(step.querySelectorAll('input, textarea')).filter(i => !i.disabled);
-			if (inputs.length === 0) return true;
-			return inputs.every(i => (i.value || '').toString().trim().length > 0);
-		}
-		return true;
-	}
-
-	render() {}
-
-	syncState() {
-		if (!this.shadowRoot || !this.stepsContainer) {
-			return;
-		}
-
-		const stepElements = this.steps || [];
-		this.stepsContainer.innerHTML = stepElements
-			.map((element, index) => {
-				const title = element.getAttribute("data-title") || element.getAttribute("title") || `Paso ${index + 1}`;
-				const subtitle = element.getAttribute("data-subtitle") || "";
-				const current = index === this.activeStep;
-				return `
-					<button class="step-button" type="button" aria-current="${current ? "step" : "false"}" data-step="${index}" disabled aria-disabled="true" tabindex="-1">
-						<span class="badge">${index + 1}</span>
-						<span class="step-label">
-							<span class="step-title">${title}</span>
-							${subtitle ? `<span class="step-subtitle">${subtitle}</span>` : ""}
-						</span>
-					</button>
-				`;
-			})
-			.join("");
-
-		stepElements.forEach((element, index) => {
-			element.classList.toggle("is-active", index === this.activeStep);
-			// use inline style to reliably hide/show regardless of page CSS
-			if (index === this.activeStep) {
-				element.style.display = '';
-				element.hidden = false;
-			} else {
-				element.style.display = 'none';
-				element.hidden = true;
+		const steps = slot ? slot.assignedElements({ flatten: true }) : [];
+		this._steps = steps.filter(el => el.classList?.contains("step-panel"));
+		this._totalSteps = this._steps.length;
+		
+		this._steps.forEach(step => {
+			const inputs = step.querySelectorAll('input, textarea');
+			inputs.forEach(input => {
+				input.removeEventListener('input', () => this.updateButtons());
+				input.addEventListener('input', () => {
+					this.updateButtons();
+					input.style.borderColor = '';
+					input.style.boxShadow = '';
+				});
+			});
+			
+			const completeBtn = step.querySelector('[data-action="complete"]');
+			if (completeBtn) {
+				completeBtn.removeEventListener('click', () => this.complete());
+				completeBtn.addEventListener('click', () => this.complete());
 			}
 		});
+		
+		this.renderStepsContainer();
+		this.updateVisibility();
+		this.updateButtons();
+		this.emitUpdate();
+	}
 
-		const prevButton = this.shadowRoot.querySelector("[data-action='prev']");
-		const nextButton = this.shadowRoot.querySelector("[data-action='next']");
-		const lastIndex = Math.max(stepElements.length - 1, 0);
-		prevButton.disabled = this.activeStep <= 0;
-		// además de rango, deshabilitar si el paso actual no está validado/terminado
-		const valid = this.isStepValid(this.activeStep);
-		nextButton.disabled = this.activeStep >= lastIndex || !valid;
+	renderStepsContainer() {
+		const container = this.shadowRoot.querySelector(".steps-container");
+		if (!container) return;
+		
+		container.innerHTML = this._steps.map((step, index) => {
+			const title = step.getAttribute("data-title") || `Paso ${index + 1}`;
+			const subtitle = step.getAttribute("data-subtitle") || "";
+			const isActive = index === this._currentStep;
+			const isCompleted = this._currentStep > index;
+			const completedClass = isCompleted ? 'completed' : '';
+			return `
+				<button class="step-button ${isActive ? 'active' : ''} ${completedClass}" type="button" data-step="${index}" disabled aria-disabled="true" tabindex="-1">
+					<span class="step-badge">${index + 1}</span>
+					<span class="step-info">
+						<span class="step-title">${this.escapeHtml(title)}</span>
+						${subtitle ? `<span class="step-subtitle">${this.escapeHtml(subtitle)}</span>` : ""}
+					</span>
+				</button>
+			`;
+		}).join("");
+	}
 
-		const reason = this._lastReason || "update";
-		this._lastReason = "";
-		this.emitStatus(reason);
+	updateVisibility() {
+		if (!this._steps) return;
+		this._steps.forEach((step, index) => {
+			if (index === this._currentStep) {
+				step.hidden = false;
+				step.style.display = '';
+			} else {
+				step.hidden = true;
+				step.style.display = 'none';
+			}
+		});
+	}
+
+	updateButtons() {
+		const prevBtn = this.shadowRoot.querySelector("[data-action='prev']");
+		const nextBtn = this.shadowRoot.querySelector("[data-action='next']");
+		
+		if (prevBtn) prevBtn.disabled = this._currentStep === 0;
+		
+		const isValid = this.isCurrentStepValid();
+		if (nextBtn) {
+			nextBtn.disabled = !isValid;
+		}
+		
+		this.renderStepsContainer();
+	}
+
+	emitUpdate() {
+		const detail = {
+			activeStep: this._currentStep,
+			totalSteps: this._totalSteps,
+			steps: this._steps.map((step, i) => ({
+				title: step.getAttribute("data-title") || `Paso ${i + 1}`,
+				subtitle: step.getAttribute("data-subtitle") || "",
+				isActive: i === this._currentStep,
+				isCompleted: i < this._currentStep
+			}))
+		};
+		this.dispatchEvent(new CustomEvent("stepper:update", { detail, bubbles: true }));
+	}
+
+	escapeHtml(str) {
+		if (!str) return "";
+		return str.replace(/[&<>]/g, function(m) {
+			if (m === '&') return '&amp;';
+			if (m === '<') return '&lt;';
+			if (m === '>') return '&gt;';
+			return m;
+		});
+	}
+
+	render() {
+		this.shadowRoot.innerHTML = `
+			<style>
+				@import url('/dist/css/steeper.css');
+			</style>
+			<div class="stepper-header">
+				<div class="steps-container"></div>
+			</div>
+			<div class="stepper-content">
+				<slot></slot>
+			</div>
+			<div class="stepper-controls">
+				<button type="button" data-action="prev">← Anterior</button>
+				<button type="button" data-action="next">Siguiente →</button>
+			</div>
+		`;
 	}
 }
 

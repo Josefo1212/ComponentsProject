@@ -4,105 +4,174 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Components Project</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.cdnfonts.com/css/clash-display" rel="stylesheet">
 	<link rel="stylesheet" href="../css/index.css">
+	<link rel="stylesheet" href="../css/tab.css">
+	<link rel="stylesheet" href="../css/steeper.css">
+	<style>
+		@keyframes slideInRight {
+			from { opacity: 0; transform: translateX(100px); }
+			to { opacity: 1; transform: translateX(0); }
+		}
+		@keyframes fadeOut {
+			from { opacity: 1; transform: translateX(0); }
+			to { opacity: 0; transform: translateX(100px); }
+		}
+		.completion-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 16px;
+			background: rgba(255, 255, 255, 0.1);
+			border-radius: 999px;
+			font-size: 0.75rem;
+			color: var(--accent-primary);
+			margin-top: 16px;
+		}
+		.completion-badge::before {
+			content: '✓';
+			font-size: 1rem;
+		}
+	</style>
 </head>
 <body>
 	<main class="page">
-		<section class="app-shell" aria-label="Aplicación integrada">
+		<section class="app-shell">
 			<header class="topbar">
-				<div>
-					<h2>Components Project</h2>
-				</div>
+				<h2>COMPONENTS <span>PROJECT</span></h2>
 				<div class="topbar-actions"></div>
 			</header>
 
 			<section class="workspace">
 				<ui-tabs id="main-tabs" active-tab="panel-flujo">
-						<article class="tab-panel is-active" role="tabpanel" id="panel-flujo" data-tab-title="Inicio" aria-labelledby="tab-flujo">
-							<div class="panel-grid">
-								<div class="panel-card workflow">
-									<ui-stepper active-step="0">
-										<section class="step-panel" data-title="Crear cuenta" data-subtitle="Correo y contraseña" data-validate="required">
-											<h4>Crear cuenta</h4>
-											<p>Introduce tu correo y una contraseña segura.</p>
-											<label>
-												Correo
-												<input type="email" name="email" data-label="Correo" placeholder="usuario@correo.com" autocomplete="email">
-											</label>
-											<label>
-												Contraseña
-												<input type="password" name="password" data-label="Contrasena" data-sensitive="true" placeholder="Contrasena" autocomplete="new-password">
-											</label>
-										</section>
+					
+					<article class="tab-panel" role="tabpanel" id="panel-flujo" data-tab-title="Workflow">
+						<div class="panel-grid">
+							<div class="panel-card">
+								<ui-stepper id="main-stepper" active-step="0">
+									
+									<section class="step-panel" data-title="Identidad" data-subtitle="Credenciales">
+										<h4>Crear cuenta</h4>
+										<p>Comienza tu viaje con nosotros. Seguro, rápido y privado.</p>
+										<label>
+											Correo electrónico
+											<input type="email" name="email" data-label="Email" placeholder="tu@ejemplo.com" autocomplete="off">
+										</label>
+										<label>
+											Contraseña
+											<input type="password" name="password" data-label="Password" data-sensitive="true" placeholder="········" autocomplete="off">
+										</label>
+									</section>
 
-										<section class="step-panel" data-title="Perfil" data-subtitle="Tu nombre" data-validate="required">
-											<h4>Perfil</h4>
-											<p>Proporciona el nombre que se mostrará públicamente.</p>
-											<label>
-												Nombre
-												<input type="text" name="displayName" data-label="Nombre" placeholder="Tu nombre" autocomplete="name">
-											</label>
-										</section>
+									<section class="step-panel" data-title="Presencia" data-subtitle="Identidad">
+										<h4>Tu perfil</h4>
+										<p>Cómo te ve el mundo.</p>
+										<label>
+											Nombre público
+											<input type="text" name="displayName" data-label="Name" placeholder="Tu nombre" autocomplete="off">
+										</label>
+									</section>
 
-										<section class="step-panel" data-title="Biografía" data-subtitle="Opcional">
-											<h4>Agrega biografía (opcional)</h4>
-											<p>Escribe una breve biografía que se mostrará en tu perfil. Puedes omitirlo si prefieres.</p>
-											<label>
-												Biografía
-												<textarea name="bio" data-label="Biografia" placeholder="Escribe algo sobre ti" rows="4"></textarea>
-											</label>
-											<div style="margin-top:12px">
-												<p>Revisa tus datos y confirma para terminar.</p>
-												<button type="button" data-action="complete">Confirmar y crear</button>
-											</div>
-										</section>
-									</ui-stepper>
-								</div>
+									<section class="step-panel" data-title="Narrativa" data-subtitle="Sobre ti">
+										<h4>Tu historia</h4>
+										<p>Comparte lo que te hace único.</p>
+										<label>
+											Biografía
+											<textarea name="bio" data-label="Bio" placeholder="Escribe algo sobre ti..." rows="4"></textarea>
+										</label>
+										<div>
+											<p style="margin-bottom: 1rem; font-size: 0.6875rem; color: #606068; font-family: 'Space Mono', monospace;">Revisa tu información antes de confirmar.</p>
+											<button type="button" data-action="complete">Completar registro</button>
+										</div>
+									</section>
 
-								<div class="panel-card panel-status" id="status-card">
-									<h3>Panel</h3>
-									<p class="panel-subtitle">Resumen del estado actual.</p>
-									<div class="status-block" id="panel-status" aria-live="polite"></div>
+								</ui-stepper>
+							</div>
+
+							<div class="panel-card">
+								<h3>Estado en tiempo real</h3>
+								<p class="panel-subtitle">Seguimiento y métricas</p>
+								<div class="status-block" id="panel-status">
+									<div class="status-group">
+										<span class="status-label">Paso actual</span>
+										<div class="status-row">
+											<strong>Cargando...</strong>
+											<span class="status-pill">Esperando datos</span>
+										</div>
+									</div>
 								</div>
 							</div>
-						</article>
+						</div>
+					</article>
 
-						<article class="tab-panel" role="tabpanel" id="panel-detalle" data-tab-title="Sobre nosotros" aria-labelledby="tab-detalle" hidden>
-							<div class="panel-grid">
-								<div class="panel-card">
-									<h3>Sobre nosotros</h3>
-									<p>Somos Maria Bermudez, Jose Fereira y Laura Ruidiaz, Maria se enfoca en la investigacion de UX y la claridad del contenido; Jose se encarga de la arquitectura en JavaScript y la logica de componentes y Laura lidera el sistema visual para que la interfaz sea consistente, accesible y agradable</p>
-								</div>
-								<div class="panel-card">
-									<h3>Ingenieria del proyecto</h3>
-									<p>Components Project divide el trabajo en un App Shell y un componente encapsulado en Shadow DOM. Esta separacion permite que el stepper sea reutilizable en otras paginas sin romper estilos ni logica.</p>
-								</div>
-								<div class="panel-card">
-									<h3>Mision</h3>
-									<p>Crear componentes UI confiables, accesibles y coherentes, listos para integrarse en proyectos escolares o profesionales. Cada pieza busca ser simple de usar, clara en su proposito y flexible para futuras extensiones.</p>
-								</div>
+					<article class="tab-panel" role="tabpanel" id="panel-estudio" data-tab-title="Estudio">
+						<div class="panel-grid">
+							<div class="panel-card">
+								<h3>EL ESTUDIO</h3>
+								<p>Maria Bermudez, Jose Fereira y Laura Ruidiaz — un colectivo multidisciplinario enfocado en investigación UX, arquitectura JavaScript y sistemas visuales.</p>
 							</div>
-						</article>
+							<div class="panel-card">
+								<h3>TECNOLOGÍA</h3>
+								<p>Web Components con Shadow DOM + adoptedStyleSheets. Completamente encapsulado, reutilizable y eficiente a escala.</p>
+							</div>
+							<div class="panel-card">
+								<h3>MISIÓN</h3>
+								<p>Construir componentes UI confiables, accesibles y atemporales para la web moderna.</p>
+							</div>
+						</div>
+					</article>
 
-						<article class="tab-panel" role="tabpanel" id="panel-ayuda" data-tab-title="Qué es esto" aria-labelledby="tab-ayuda" hidden>
-							<div class="panel-grid">
-								<div class="panel-card">
-									<h3>¿Que es esto?</h3>
-									<p>Es una demo realista pensada para clases de desarrollo web: muestra como construir un flujo guiado de registro usando componentes nativos, sin frameworks, pero con buenas practicas de accesibilidad y estados.</p>
-									<p>La idea es que puedas leer el codigo y entenderlo rapido: el App Shell maneja la navegacion por pestañas y el stepper vive aislado en Shadow DOM para evitar fugas de estilos.</p>
-								</div>
-								<div class="panel-card">
-									<h3>Como usar</h3>
-									<p>Completa cada paso en orden. El panel derecho te da un resumen del progreso y de lo que falta para continuar. Cuando confirmes el ultimo paso, el estado del proceso se actualiza automaticamente.</p>
-								</div>
+					<article class="tab-panel" role="tabpanel" id="panel-guia" data-tab-title="Guía">
+						<div class="panel-grid">
+							<div class="panel-card">
+								<h3>¿QUÉ ES ESTO?</h3>
+								<p>Un sistema de diseño listo para producción que muestra Web Components nativos con estética vanguardista y accesibilidad como prioridad.</p>
 							</div>
-						</article>
+							<div class="panel-card">
+								<h3>CÓMO USAR</h3>
+								<p>Completa cada paso en orden secuencial. El panel de estado proporciona retroalimentación en tiempo real. El botón "Completar" finaliza el proceso.</p>
+							</div>
+							<div class="panel-card">
+								<h3>CARACTERÍSTICAS</h3>
+								<p>• Interfaz completamente animada<br>• Efectos glassmorphism<br>• Scrollbar personalizado<br>• Diseño responsive<br>• Web Components nativos</p>
+							</div>
+						</div>
+					</article>
+
 				</ui-tabs>
 			</section>
+		</section>
 	</main>
 
+	<script src="../../src/components/Tab.js"></script>
 	<script src="../../src/components/steeper.js"></script>
-	<script src="../../src/components/tabs.js"></script>
-	<script src="../../src/components/index.js"></script>
+	<script src="../../src/index.js"></script>
+	
+	<script>
+		const stepperElement = document.getElementById("main-stepper");
+		if (stepperElement) {
+			stepperElement.addEventListener("stepper:completed", (event) => {
+				console.log("Stepper completed!", event.detail);
+				const panelStatus = document.getElementById("panel-status");
+				if (panelStatus) {
+					const completionHtml = `
+						<div class="status-group">
+							<span class="status-label">PROCESO COMPLETADO</span>
+							<div class="status-row">
+								<strong>✓ Registro exitoso</strong>
+								<span class="status-pill is-ready">Completado</span>
+							</div>
+							<p class="status-caption">Todos los datos han sido verificados y confirmados.</p>
+						</div>
+						<div class="completion-badge">
+							Bienvenido a la plataforma
+						</div>
+					`;
+					panelStatus.innerHTML = completionHtml;
+				}
+			});
+		}
+	</script>
 </body>
 </html>
