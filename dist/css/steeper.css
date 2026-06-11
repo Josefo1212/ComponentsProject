@@ -5,6 +5,14 @@
   width: 100%;
 }
 
+[hidden] {
+  display: none !important;
+}
+
+::slotted(.step-panel[hidden]) {
+  display: none !important;
+}
+
 .stepper-header {
   margin-bottom: var(--space-2xl);
 }

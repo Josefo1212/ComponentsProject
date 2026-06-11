@@ -5,6 +5,14 @@
   width: 100%;
 }
 
+[hidden] {
+  display: none !important;
+}
+
+::slotted(.tab-panel[hidden]) {
+  display: none !important;
+}
+
 .tabs-header {
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
@@ -73,8 +81,4 @@
 ::slotted(.tab-panel) {
   display: block;
   transition: all 0.3s ease;
-}
-
-::slotted(.tab-panel[hidden]) {
-  display: none !important;
 }

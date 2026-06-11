@@ -280,13 +280,17 @@ body::after {
 }
 
 /* Tab Panels */
+[hidden] {
+  display: none !important;
+}
+
 .tab-panel {
   display: block;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .tab-panel[hidden] {
-  display: none;
+  display: none !important;
 }
 
 .tab-panel.is-active {
@@ -546,6 +550,12 @@ body::after {
   opacity: 0.5;
 }
 
+.step-panel input.input-error,
+.step-panel textarea.input-error {
+  border-color: #ff4444 !important;
+  box-shadow: 0 0 0 1px #ff4444 !important;
+}
+
 /* BOTÓN PRINCIPAL */
 .step-panel button {
   align-self: flex-start;
@@ -590,6 +600,34 @@ body::after {
 
 .step-panel button:active {
   transform: scale(0.98) translateY(0);
+}
+
+.stepper-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  z-index: 1000;
+  pointer-events: none;
+  animation: slideInRight 0.3s ease both;
+}
+
+.stepper-toast.toast-success {
+  background: #00cc66;
+}
+
+.stepper-toast.toast-error {
+  background: #ff4444;
+}
+
+.stepper-toast.is-exiting {
+  animation: fadeOut 0.3s ease both;
 }
 
 /* Status Block */

@@ -60,11 +60,9 @@ class UiStepper extends HTMLElement {
 			const value = input.value?.trim() || '';
 			if (value === '') {
 				allFilled = false;
-				input.style.borderColor = '#ff4444';
-				input.style.boxShadow = '0 0 0 1px #ff4444';
+				input.classList.add('input-error');
 				setTimeout(() => {
-					input.style.borderColor = '';
-					input.style.boxShadow = '';
+					input.classList.remove('input-error');
 				}, 1500);
 			}
 		});
@@ -108,24 +106,11 @@ class UiStepper extends HTMLElement {
 	showToast(message, color) {
 		const toast = document.createElement('div');
 		toast.textContent = message;
-		toast.style.cssText = `
-			position: fixed;
-			bottom: 20px;
-			right: 20px;
-			background: ${color};
-			color: #ffffff;
-			padding: 12px 24px;
-			border-radius: 40px;
-			font-family: monospace;
-			font-size: 0.7rem;
-			font-weight: 600;
-			letter-spacing: 1px;
-			z-index: 1000;
-			animation: slideInRight 0.3s ease;
-		`;
+		toast.classList.add('stepper-toast');
+		toast.classList.add(color === '#00cc66' ? 'toast-success' : 'toast-error');
 		document.body.appendChild(toast);
 		setTimeout(() => {
-			toast.style.animation = 'fadeOut 0.3s ease';
+			toast.classList.add('is-exiting');
 			setTimeout(() => toast.remove(), 300);
 		}, 2500);
 	}
@@ -139,18 +124,23 @@ class UiStepper extends HTMLElement {
 		this._steps.forEach(step => {
 			const inputs = step.querySelectorAll('input, textarea');
 			inputs.forEach(input => {
-				input.removeEventListener('input', () => this.updateButtons());
-				input.addEventListener('input', () => {
+				if (input.__stepperInputHandler) {
+					input.removeEventListener('input', input.__stepperInputHandler);
+				}
+				input.__stepperInputHandler = () => {
 					this.updateButtons();
-					input.style.borderColor = '';
-					input.style.boxShadow = '';
-				});
+					input.classList.remove('input-error');
+				};
+				input.addEventListener('input', input.__stepperInputHandler);
 			});
 			
 			const completeBtn = step.querySelector('[data-action="complete"]');
 			if (completeBtn) {
-				completeBtn.removeEventListener('click', () => this.complete());
-				completeBtn.addEventListener('click', () => this.complete());
+				if (completeBtn.__stepperCompleteHandler) {
+					completeBtn.removeEventListener('click', completeBtn.__stepperCompleteHandler);
+				}
+				completeBtn.__stepperCompleteHandler = () => this.complete();
+				completeBtn.addEventListener('click', completeBtn.__stepperCompleteHandler);
 			}
 		});
 		
@@ -185,13 +175,7 @@ class UiStepper extends HTMLElement {
 	updateVisibility() {
 		if (!this._steps) return;
 		this._steps.forEach((step, index) => {
-			if (index === this._currentStep) {
-				step.hidden = false;
-				step.style.display = '';
-			} else {
-				step.hidden = true;
-				step.style.display = 'none';
-			}
+			step.hidden = index !== this._currentStep;
 		});
 	}
 

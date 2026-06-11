@@ -60,11 +60,6 @@ class UiTabs extends HTMLElement {
 		panels.forEach(panel => {
 			const isActive = panel.id === activeId;
 			panel.hidden = !isActive;
-			if (isActive) {
-				panel.style.display = '';
-			} else {
-				panel.style.display = 'none';
-			}
 		});
 	}
 
