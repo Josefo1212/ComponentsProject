@@ -527,6 +527,7 @@ body {
   position: relative;
   overflow: hidden;
   margin-top: var(--space-md);
+  white-space: nowrap;
 }
 
 .step-panel button::before {

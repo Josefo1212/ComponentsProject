@@ -231,6 +231,11 @@ class UiStepper extends HTMLElement {
                 input.__stepperInputHandler
             );
         });
+
+        const completeBtn = step.querySelector('[data-action="complete"]');
+        if (completeBtn) {
+            completeBtn.addEventListener('click', () => this.complete());
+        }
     });
 
     this.renderStepsContainer();
