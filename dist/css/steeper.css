@@ -250,7 +250,6 @@
 
 .stepper-content {
   display: block;
-  animation: contentFade 0.8s ease;
 }
 
 @keyframes contentFade {
