@@ -386,7 +386,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--space-2xl);
-  animation: slideFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /*animation: slideFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;*/
 }
 
 @keyframes slideFade {
@@ -968,11 +968,10 @@ body {
   }
 }
 /* Ocultar por defecto todos los paneles del stepper en la carga inicial */
-ui-stepper .step-panel {
+ui-stepper:not(:defined) .step-panel {
     display: none;
 }
 
-/* Solo permitir visible el primero antes de que el Web Component se inicialice */
-ui-stepper .step-panel:first-of-type {
+ui-stepper:not(:defined) .step-panel:first-child {
     display: flex;
 }

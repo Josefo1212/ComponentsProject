@@ -30,28 +30,39 @@ class UiStepper extends HTMLElement {
     }
 
     connectedCallback() {
-		if (this.shadowRoot.children.length > 0) {
+        console.log("connectedCallback");
+
+    if (this.shadowRoot.children.length > 0) {
         return;
     }
 
     this.shadowRoot.appendChild(
         stepperTemplate.content.cloneNode(true)
     );
-        // Clonación limpia y nativa de la estructura base
-        this.shadowRoot.appendChild(stepperTemplate.content.cloneNode(true));
-        
-        this.slotElement = this.shadowRoot.querySelector("slot");
-        if (this.slotElement) {
-            this.slotElement.addEventListener("slotchange", this.handleSlotChange);
-        }
-        
-        const prevBtn = this.shadowRoot.querySelector("[data-action='prev']");
-        const nextBtn = this.shadowRoot.querySelector("[data-action='next']");
-        if (prevBtn) prevBtn.addEventListener("click", () => this.previous());
-        if (nextBtn) nextBtn.addEventListener("click", () => this.next());
-        
-        this.handleSlotChange();
+
+    this.slotElement = this.shadowRoot.querySelector("slot");
+
+    if (this.slotElement) {
+        this.slotElement.addEventListener(
+            "slotchange",
+            this.handleSlotChange
+        );
     }
+
+    const prevBtn =
+        this.shadowRoot.querySelector("[data-action='prev']");
+
+    const nextBtn =
+        this.shadowRoot.querySelector("[data-action='next']");
+
+    if (prevBtn)
+        prevBtn.addEventListener("click", () => this.previous());
+
+    if (nextBtn)
+        nextBtn.addEventListener("click", () => this.next());
+
+    this.handleSlotChange();
+}
 
     disconnectedCallback() {
         if (this.slotElement) {
@@ -64,6 +75,7 @@ class UiStepper extends HTMLElement {
     }
 
     set activeStep(value) {
+        console.log("activeStep", value);
         const newStep = Math.max(0, Math.min(value, this._totalSteps - 1));
         if (newStep !== this._currentStep && !this._isTransitioning) {
             this._isTransitioning = true;
@@ -85,10 +97,11 @@ class UiStepper extends HTMLElement {
     				newPanel.style.display = 'flex';
 
     				requestAnimationFrame(() => {
-        				newPanel.style.animation = '';
-        				void newPanel.offsetWidth;
-        				newPanel.style.animation =
-            					'slideFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+        					if (newPanel.dataset.animated !== "true") {
+							newPanel.style.animation =
+									'slideFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+							newPanel.dataset.animated = "true";
+						}
     				});
 				}
                 this._isTransitioning = false;
@@ -176,47 +189,57 @@ class UiStepper extends HTMLElement {
             setTimeout(() => toast.remove(), 500);
         }, 2800);
     }
-
+    
     handleSlotChange() {
-        const slot = this.shadowRoot.querySelector("slot");
-        const steps = slot ? slot.assignedElements({ flatten: true }) : [];
-        this._steps = steps.filter(el => el.classList?.contains("step-panel"));
-        this._totalSteps = this._steps.length;
-        
-        this._steps.forEach(step => {
-            step.style.display = 'flex';
-            step.style.flexDirection = 'column';
-            step.style.gap = 'var(--space-2xl)';
-            
-            const inputs = step.querySelectorAll('input, textarea');
-            inputs.forEach(input => {
-                if (input.__stepperInputHandler) {
-                    input.removeEventListener('input', input.__stepperInputHandler);
-                }
-                input.__stepperInputHandler = () => {
-                    this.updateButtonsState();
-                    input.classList.remove('input-error');
-                };
-                input.addEventListener('input', input.__stepperInputHandler);
-            });
-            
-            const completeBtn = step.querySelector('[data-action="complete"]');
-            if (completeBtn) {
-                if (completeBtn.__stepperCompleteHandler) {
-                    completeBtn.removeEventListener('click', completeBtn.__stepperCompleteHandler);
-                }
-                completeBtn.__stepperCompleteHandler = () => this.complete();
-                completeBtn.addEventListener('click', completeBtn.__stepperCompleteHandler);
-            }
-        });
-        
-        this.renderStepsContainer();
-        this.updateVisibility();
-        this.updateButtonsState();
-        this.emitUpdate();
+
+    console.log("handleSlotChange");
+
+    if (this._initialized) {
+        console.log("slotchange ignorado");
+        return;
     }
 
+    this._initialized = true;
+
+    const slot = this.shadowRoot.querySelector("slot");
+    const steps = slot
+        ? slot.assignedElements({ flatten: true })
+        : [];
+
+    this._steps = steps.filter(
+        el => el.classList?.contains("step-panel")
+    );
+
+    this._totalSteps = this._steps.length;
+
+    this._steps.forEach(step => {
+
+        step.style.flexDirection = 'column';
+        step.style.gap = 'var(--space-2xl)';
+
+        const inputs = step.querySelectorAll('input, textarea');
+
+        inputs.forEach(input => {
+
+            input.__stepperInputHandler = () => {
+                this.updateButtonsState();
+                input.classList.remove('input-error');
+            };
+
+            input.addEventListener(
+                'input',
+                input.__stepperInputHandler
+            );
+        });
+    });
+
+    this.renderStepsContainer();
+    this.updateVisibility();
+    this.updateButtonsState();
+    this.emitUpdate();
+}
     renderStepsContainer() {
+        console.log("renderStepsContainer");
         const container = this.shadowRoot.querySelector(".steps-container");
         if (!container) return;
         
@@ -289,26 +312,30 @@ class UiStepper extends HTMLElement {
         });
     }
 
-   updateVisibility() {
+  updateVisibility() {
+    console.log("updateVisibility", Date.now());
+
     if (!this._steps) return;
 
     this._steps.forEach((step, index) => {
 
         const isActive = index === this._currentStep;
 
-        step.hidden = !isActive;
-
         if (isActive) {
+
+            step.hidden = false;
             step.style.display = "flex";
-            step.style.flexDirection = "column";
-            step.style.gap = "var(--space-2xl)";
+
         } else {
+
+            step.hidden = true;
             step.style.display = "none";
         }
     });
 }
 
     emitUpdate() {
+        console.log("emitUpdate");
         const detail = {
             activeStep: this._currentStep,
             totalSteps: this._totalSteps,
