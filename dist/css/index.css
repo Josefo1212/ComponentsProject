@@ -21,7 +21,7 @@
 ::-webkit-scrollbar-thumb {
   background: #ffffff;
   border-radius: 2px;
-  transition: all 0.3s ease;
+  transition: all 0.5s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -59,10 +59,10 @@
   --font-display: 'Clash Display', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'Space Mono', 'JetBrains Mono', monospace;
-  --transition-fast: 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-  --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  --transition-spring: 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  --transition-fast: 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  --transition-smooth: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-spring: 1.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
@@ -86,56 +86,18 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   position: relative;
-  animation: bodyFadeIn 1s ease;
+  animation: bodyFadeIn 1.5s ease;
 }
 
 @keyframes bodyFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 40px,
-      rgba(255, 255, 255, 0.01) 40px,
-      rgba(255, 255, 255, 0.01) 80px
-    );
-  pointer-events: none;
-  z-index: 0;
-  animation: patternShift 20s linear infinite;
-}
-
-@keyframes patternShift {
-  0% { background-position: 0 0; }
-  100% { background-position: 80px 80px; }
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.03), transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-  animation: slowDrift 30s ease infinite;
-}
-
-@keyframes slowDrift {
-  0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(3%, 2%); }
-  66% { transform: translate(-2%, 4%); }
+  from { 
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .page {
@@ -165,17 +127,17 @@ body::after {
   margin-bottom: var(--space-3xl);
   border-bottom: 1px solid var(--border-medium);
   position: relative;
-  animation: slideDown 0.6s var(--transition-smooth);
+  animation: slideDown 0.9s var(--transition-smooth);
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(-60px) scale(0.97);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -187,11 +149,11 @@ body::after {
   width: 80px;
   height: 1px;
   background: var(--accent-primary);
-  transition: width 0.4s var(--transition-smooth);
+  transition: width 0.6s var(--transition-smooth);
 }
 
 .topbar:hover::after {
-  width: 160px;
+  width: 200px;
 }
 
 .topbar h2 {
@@ -201,17 +163,17 @@ body::after {
   text-transform: uppercase;
   color: var(--text-caption);
   font-family: var(--font-mono);
-  transition: letter-spacing 0.3s ease;
+  transition: letter-spacing 0.5s ease;
 }
 
 .topbar h2:hover {
-  letter-spacing: 0.25em;
+  letter-spacing: 0.3em;
 }
 
 .topbar h2 span {
   color: var(--accent-primary);
   font-weight: 600;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
 }
 
 .topbar h2:hover span {
@@ -226,17 +188,17 @@ body::after {
   overflow: hidden;
   transition: all var(--transition-smooth);
   position: relative;
-  animation: scaleIn 0.5s var(--transition-bounce);
+  animation: scaleIn 1s var(--transition-bounce);
 }
 
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.98);
+    transform: scale(0.92) rotate(-1deg);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) rotate(0deg);
   }
 }
 
@@ -253,7 +215,7 @@ body::after {
   mask-composite: exclude;
   pointer-events: none;
   opacity: 0.3;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.7s ease;
 }
 
 .workspace:hover::before {
@@ -261,7 +223,7 @@ body::after {
 }
 
 .workspace:hover {
-  transform: translateY(-4px);
+  transform: translateY(-8px) scale(1.005);
   box-shadow: var(--shadow-xl);
   border-color: var(--border-strong);
 }
@@ -280,32 +242,28 @@ body::after {
 }
 
 /* Tab Panels */
-[hidden] {
-  display: none !important;
-}
-
 .tab-panel {
   display: block;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 .tab-panel[hidden] {
-  display: none !important;
+  display: none;
 }
 
 .tab-panel.is-active {
   display: block;
-  animation: panelFadeIn 0.4s var(--transition-smooth);
+  animation: panelFadeIn 0.7s var(--transition-smooth);
 }
 
 @keyframes panelFadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(30px) scale(0.97);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -316,21 +274,22 @@ body::after {
   transition: all var(--transition-smooth);
   position: relative;
   overflow: hidden;
-  animation: cardReveal 0.5s var(--transition-smooth) backwards;
+  animation: cardReveal 1s var(--transition-bounce) backwards;
+  border-radius: 0 !important;
 }
 
-.panel-card:nth-child(1) { animation-delay: 0.1s; }
-.panel-card:nth-child(2) { animation-delay: 0.2s; }
-.panel-card:nth-child(3) { animation-delay: 0.3s; }
+.panel-card:nth-child(1) { animation-delay: 0.2s; }
+.panel-card:nth-child(2) { animation-delay: 0.4s; }
+.panel-card:nth-child(3) { animation-delay: 0.6s; }
 
 @keyframes cardReveal {
   from {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-50px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
   }
 }
 
@@ -340,14 +299,14 @@ body::after {
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
+  height: 2px;
   background: var(--gradient-primary);
   opacity: 0;
   transition: opacity var(--transition-smooth);
 }
 
 .panel-card:hover::before {
-  opacity: 0.3;
+  opacity: 0.4;
 }
 
 .panel-card::after {
@@ -357,8 +316,8 @@ body::after {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent);
-  transition: left 0.6s ease;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transition: left 1s ease;
   pointer-events: none;
 }
 
@@ -389,7 +348,7 @@ body::after {
 }
 
 .panel-card:hover h3 {
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
 }
 
 .panel-card h3::before {
@@ -403,7 +362,7 @@ body::after {
 }
 
 .panel-card:hover h3::before {
-  transform: rotate(90deg);
+  transform: rotate(180deg);
   opacity: 1;
 }
 
@@ -439,6 +398,18 @@ body::after {
   display: flex;
   flex-direction: column;
   gap: var(--space-2xl);
+  animation: slideFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideFade {
+  0% {
+    opacity: 0;
+    transform: translateX(40px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 .step-panel h4 {
@@ -460,13 +431,13 @@ body::after {
   bottom: -8px;
   left: 0;
   width: 40%;
-  height: 1px;
+  height: 2px;
   background: var(--gradient-primary);
   transition: all var(--transition-smooth);
 }
 
 .step-panel:hover h4::after {
-  width: 60%;
+  width: 100%;
 }
 
 .step-panel > p {
@@ -484,7 +455,7 @@ body::after {
 .step-panel:hover > p {
   background: var(--bg-card);
   border-left-width: 4px;
-  transform: translateX(4px);
+  transform: translateX(8px);
 }
 
 .step-panel label {
@@ -503,7 +474,7 @@ body::after {
 
 .step-panel label:hover {
   color: var(--text-body);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 
 .step-panel input,
@@ -524,7 +495,7 @@ body::after {
 .step-panel textarea:hover {
   border-color: var(--border-strong);
   background: var(--bg-card-hover);
-  transform: translateX(4px);
+  transform: translateX(8px);
 }
 
 .step-panel input:focus,
@@ -533,8 +504,8 @@ body::after {
   outline: none;
   border-color: var(--accent-primary);
   background: var(--bg-card);
-  box-shadow: 0 0 0 2px var(--accent-glow);
-  transform: translateX(8px);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  transform: translateX(12px);
 }
 
 .step-panel input::placeholder,
@@ -547,13 +518,7 @@ body::after {
 
 .step-panel input:focus::placeholder,
 .step-panel textarea:focus::placeholder {
-  opacity: 0.5;
-}
-
-.step-panel input.input-error,
-.step-panel textarea.input-error {
-  border-color: #ff4444 !important;
-  box-shadow: 0 0 0 1px #ff4444 !important;
+  opacity: 0.3;
 }
 
 /* BOTÓN PRINCIPAL */
@@ -584,7 +549,7 @@ body::after {
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.15), transparent);
-  transition: left 0.5s ease;
+  transition: left 0.8s ease;
 }
 
 .step-panel button:hover::before {
@@ -592,30 +557,32 @@ body::after {
 }
 
 .step-panel button:hover {
-  transform: scale(1.05) translateY(-3px);
+  transform: scale(1.05) translateY(-4px);
   box-shadow: var(--shadow-lg);
-  letter-spacing: 0.2em;
-  padding: 1rem 3rem;
+  letter-spacing: 0.25em;
+  padding: 1rem 3.5rem;
 }
 
 .step-panel button:active {
-  transform: scale(0.98) translateY(0);
+  transform: scale(0.97) translateY(0);
 }
 
+/* Toast */
 .stepper-toast {
   position: fixed;
   bottom: 20px;
   right: 20px;
   color: #ffffff;
-  padding: 12px 24px;
+  padding: 16px 32px;
   border-radius: 40px;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 1px;
   z-index: 1000;
   pointer-events: none;
-  animation: slideInRight 0.3s ease both;
+  animation: slideInRight 0.7s ease both;
+  box-shadow: var(--shadow-lg);
 }
 
 .stepper-toast.toast-success {
@@ -627,7 +594,29 @@ body::after {
 }
 
 .stepper-toast.is-exiting {
-  animation: fadeOut 0.3s ease both;
+  animation: fadeOut 0.5s ease both;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(140px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(140px) scale(0.9);
+  }
 }
 
 /* Status Block */
@@ -641,21 +630,21 @@ body::after {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  animation: fadeSlideUp 0.5s var(--transition-smooth) backwards;
+  animation: fadeSlideUp 0.8s var(--transition-smooth) backwards;
 }
 
-.status-group:nth-child(1) { animation-delay: 0.05s; }
-.status-group:nth-child(2) { animation-delay: 0.1s; }
-.status-group:nth-child(3) { animation-delay: 0.15s; }
+.status-group:nth-child(1) { animation-delay: 0.15s; }
+.status-group:nth-child(2) { animation-delay: 0.3s; }
+.status-group:nth-child(3) { animation-delay: 0.45s; }
 
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(35px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -670,7 +659,7 @@ body::after {
 }
 
 .status-group:hover .status-label {
-  letter-spacing: 0.25em;
+  letter-spacing: 0.3em;
   color: var(--text-body);
 }
 
@@ -687,7 +676,7 @@ body::after {
 .status-row:hover {
   border-bottom-color: var(--border-medium);
   padding-left: var(--space-sm);
-  transform: translateX(4px);
+  transform: translateX(8px);
 }
 
 .status-row strong {
@@ -699,7 +688,7 @@ body::after {
 }
 
 .status-row:hover strong {
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .status-pill {
@@ -764,8 +753,9 @@ body::after {
 
 .status-field:hover {
   background: var(--bg-card-hover);
-  transform: translateX(var(--space-sm));
+  transform: translateX(var(--space-lg)) scale(1.01);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .status-field span {
@@ -778,7 +768,7 @@ body::after {
 }
 
 .status-field:hover span {
-  letter-spacing: 0.15em;
+  letter-spacing: 0.16em;
   color: var(--text-body);
 }
 
@@ -798,7 +788,7 @@ body::after {
   background: var(--accent-primary);
   color: var(--bg-deep);
   border-color: transparent;
-  transform: scale(1.02);
+  transform: scale(1.04);
 }
 
 .status-empty {
@@ -907,15 +897,17 @@ body::after {
   background: var(--accent-primary);
   color: var(--bg-deep);
   border-color: var(--accent-primary);
-  animation: pulse 2s infinite;
+  animation: pulse 2.5s infinite;
 }
 
 @keyframes pulse {
   0%, 100% {
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0);
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+    transform: scale(1.05);
   }
 }
 
@@ -933,27 +925,61 @@ body::after {
 }
 
 .status-step:hover em {
-  letter-spacing: 0.15em;
+  letter-spacing: 0.16em;
   color: var(--text-body);
 }
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(100px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+
+.completion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--accent-primary);
+  margin-top: 16px;
+  animation: badgeAppear 0.8s var(--transition-bounce);
 }
 
-@keyframes fadeOut {
+.completion-badge::before {
+  content: '✓';
+  font-size: 1rem;
+}
+
+@keyframes badgeAppear {
   from {
-    opacity: 1;
-    transform: translateX(0);
+    opacity: 0;
+    transform: scale(0.7) rotate(-10deg);
   }
   to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+/* Asegurar que los step-panel sean flex */
+.step-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl);
+  width: 100%;
+}
+
+.step-panel[hidden] {
+  display: none !important;
+}
+
+.step-panel {
+  animation: slideFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideFadeOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
     opacity: 0;
-    transform: translateX(100px);
+    transform: translateX(-40px) scale(0.95);
   }
 }

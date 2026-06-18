@@ -6,6 +6,7 @@ class UiStepper extends HTMLElement {
 		this._currentStep = 0;
 		this._totalSteps = 0;
 		this._steps = [];
+		this._isTransitioning = false;
 	}
 
 	static get observedAttributes() {
@@ -39,11 +40,35 @@ class UiStepper extends HTMLElement {
 
 	set activeStep(value) {
 		const newStep = Math.max(0, Math.min(value, this._totalSteps - 1));
-		if (newStep !== this._currentStep) {
-			this._currentStep = newStep;
-			this.updateVisibility();
-			this.updateButtons();
-			this.emitUpdate();
+		if (newStep !== this._currentStep && !this._isTransitioning) {
+			this._isTransitioning = true;
+			
+			// Ocultar panel actual con animación de salida
+			const currentPanel = this._steps[this._currentStep];
+			if (currentPanel) {
+				currentPanel.style.animation = 'slideFadeOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+			}
+			
+			// Esperar a que termine la animación de salida
+			setTimeout(() => {
+				this._currentStep = newStep;
+				this.updateVisibility();
+				this.updateButtonsState();
+				this.emitUpdate();
+				
+				// Mostrar nuevo panel con animación de entrada
+				const newPanel = this._steps[this._currentStep];
+				if (newPanel) {
+					newPanel.style.display = 'flex';
+					newPanel.hidden = false;
+					newPanel.style.animation = 'none';
+					// Forzar reflow
+					void newPanel.offsetHeight;
+					newPanel.style.animation = 'slideFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+				}
+				
+				this._isTransitioning = false;
+			}, 500);
 		}
 	}
 
@@ -71,8 +96,15 @@ class UiStepper extends HTMLElement {
 	}
 
 	next() {
-		if (this._currentStep < this._totalSteps - 1) {
+		if (this._currentStep < this._totalSteps - 1 && !this._isTransitioning) {
 			if (this.isCurrentStepValid()) {
+				const nextBtn = this.shadowRoot.querySelector("[data-action='next']");
+				if (nextBtn) {
+					nextBtn.classList.add('clicked');
+					setTimeout(() => {
+						nextBtn.classList.remove('clicked');
+					}, 700);
+				}
 				this.activeStep = this._currentStep + 1;
 			} else {
 				this.showToast('Completa todos los campos antes de continuar', '#ff4444');
@@ -81,7 +113,14 @@ class UiStepper extends HTMLElement {
 	}
 
 	previous() {
-		if (this._currentStep > 0) {
+		if (this._currentStep > 0 && !this._isTransitioning) {
+			const prevBtn = this.shadowRoot.querySelector("[data-action='prev']");
+			if (prevBtn) {
+				prevBtn.classList.add('clicked');
+				setTimeout(() => {
+					prevBtn.classList.remove('clicked');
+				}, 700);
+			}
 			this.activeStep = this._currentStep - 1;
 		}
 	}
@@ -111,8 +150,8 @@ class UiStepper extends HTMLElement {
 		document.body.appendChild(toast);
 		setTimeout(() => {
 			toast.classList.add('is-exiting');
-			setTimeout(() => toast.remove(), 300);
-		}, 2500);
+			setTimeout(() => toast.remove(), 500);
+		}, 2800);
 	}
 
 	handleSlotChange() {
@@ -122,13 +161,18 @@ class UiStepper extends HTMLElement {
 		this._totalSteps = this._steps.length;
 		
 		this._steps.forEach(step => {
+			step.style.display = 'flex';
+			step.style.flexDirection = 'column';
+			step.style.gap = 'var(--space-2xl)';
+			
 			const inputs = step.querySelectorAll('input, textarea');
 			inputs.forEach(input => {
 				if (input.__stepperInputHandler) {
 					input.removeEventListener('input', input.__stepperInputHandler);
 				}
 				input.__stepperInputHandler = () => {
-					this.updateButtons();
+					// Solo actualizar el estado de los botones, NO re-renderizar
+					this.updateButtonsState();
 					input.classList.remove('input-error');
 				};
 				input.addEventListener('input', input.__stepperInputHandler);
@@ -146,7 +190,7 @@ class UiStepper extends HTMLElement {
 		
 		this.renderStepsContainer();
 		this.updateVisibility();
-		this.updateButtons();
+		this.updateButtonsState();
 		this.emitUpdate();
 	}
 
@@ -154,6 +198,7 @@ class UiStepper extends HTMLElement {
 		const container = this.shadowRoot.querySelector(".steps-container");
 		if (!container) return;
 		
+		// Guardar referencia a los botones actuales para no recrearlos innecesariamente
 		container.innerHTML = this._steps.map((step, index) => {
 			const title = step.getAttribute("data-title") || `Paso ${index + 1}`;
 			const subtitle = step.getAttribute("data-subtitle") || "";
@@ -161,7 +206,13 @@ class UiStepper extends HTMLElement {
 			const isCompleted = this._currentStep > index;
 			const completedClass = isCompleted ? 'completed' : '';
 			return `
-				<button class="step-button ${isActive ? 'active' : ''} ${completedClass}" type="button" data-step="${index}" disabled aria-disabled="true" tabindex="-1">
+				<button class="step-button ${isActive ? 'active' : ''} ${completedClass}" 
+				        type="button" 
+				        data-step="${index}" 
+				        data-title="${this.escapeHtml(title)}"
+				        disabled 
+				        aria-disabled="true" 
+				        tabindex="-1">
 					<span class="step-badge">${index + 1}</span>
 					<span class="step-info">
 						<span class="step-title">${this.escapeHtml(title)}</span>
@@ -172,14 +223,9 @@ class UiStepper extends HTMLElement {
 		}).join("");
 	}
 
-	updateVisibility() {
-		if (!this._steps) return;
-		this._steps.forEach((step, index) => {
-			step.hidden = index !== this._currentStep;
-		});
-	}
-
-	updateButtons() {
+	// NUEVO: Solo actualiza el estado de los botones sin re-renderizar
+	updateButtonsState() {
+		const stepButtons = this.shadowRoot.querySelectorAll(".step-button");
 		const prevBtn = this.shadowRoot.querySelector("[data-action='prev']");
 		const nextBtn = this.shadowRoot.querySelector("[data-action='next']");
 		
@@ -190,7 +236,34 @@ class UiStepper extends HTMLElement {
 			nextBtn.disabled = !isValid;
 		}
 		
-		this.renderStepsContainer();
+		// Actualizar clases de los botones sin recrearlos
+		stepButtons.forEach((btn, index) => {
+			const isActive = index === this._currentStep;
+			const isCompleted = this._currentStep > index;
+			
+			btn.classList.toggle('active', isActive);
+			btn.classList.toggle('completed', isCompleted);
+		});
+	}
+
+	updateVisibility() {
+		if (!this._steps) return;
+		this._steps.forEach((step, index) => {
+			if (index === this._currentStep) {
+				step.hidden = false;
+				step.style.display = 'flex';
+				step.style.flexDirection = 'column';
+				step.style.gap = 'var(--space-2xl)';
+				if (!step.dataset.initialized) {
+					step.dataset.initialized = 'true';
+					step.style.animation = 'slideFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+				}
+			} else {
+				step.hidden = true;
+				step.style.display = 'none';
+				step.style.animation = '';
+			}
+		});
 	}
 
 	emitUpdate() {
@@ -220,7 +293,7 @@ class UiStepper extends HTMLElement {
 	render() {
 		this.shadowRoot.innerHTML = `
 			<style>
-				@import url('/dist/css/steeper.css');
+				@import url('../css/steeper.css');
 			</style>
 			<div class="stepper-header">
 				<div class="steps-container"></div>

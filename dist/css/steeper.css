@@ -35,11 +35,11 @@
   width: 60px;
   height: 1px;
   background: var(--accent-primary);
-  transition: width 0.4s var(--transition-smooth);
+  transition: width 0.6s var(--transition-smooth);
 }
 
 .steps-container:hover::after {
-  width: 120px;
+  width: 160px;
 }
 
 .step-button {
@@ -78,12 +78,19 @@
   background: var(--bg-card);
   border-color: var(--accent-primary);
   color: var(--accent-primary);
-  animation: buttonGlow 0.5s ease;
+  animation: buttonGlow 0.8s ease;
+  transform: scale(1.05);
 }
 
 @keyframes buttonGlow {
-  from { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3); }
-  to { box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
+  from { 
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    transform: scale(0.95);
+  }
+  to { 
+    box-shadow: 0 0 0 12px rgba(255, 255, 255, 0);
+    transform: scale(1.05);
+  }
 }
 
 .step-badge {
@@ -147,7 +154,7 @@
   background: var(--bg-elevated);
   color: var(--text-body);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  transition: all 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
   position: relative;
   overflow: hidden;
 }
@@ -156,14 +163,14 @@
   content: '←';
   margin-right: 0.75rem;
   opacity: 0.7;
-  transition: all 0.3s ease;
+  transition: all 0.5s ease;
   display: inline-block;
 }
 
 [data-action="prev"]:hover:not(:disabled) {
   border-color: var(--accent-primary);
   color: var(--accent-primary);
-  transform: translateX(-4px);
+  transform: translateX(-10px) scale(1.02);
   background: var(--bg-card);
   padding-left: 2.5rem;
   padding-right: 2rem;
@@ -171,7 +178,7 @@
 
 [data-action="prev"]:hover:not(:disabled)::before {
   opacity: 1;
-  transform: translateX(-4px);
+  transform: translateX(-6px);
 }
 
 [data-action="next"] {
@@ -186,23 +193,24 @@
   background: var(--bg-elevated);
   color: var(--text-body);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  transition: all 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
   position: relative;
   overflow: hidden;
+  flex: 1;
 }
 
 [data-action="next"]::after {
   content: '→';
   margin-left: 0.75rem;
   opacity: 0.7;
-  transition: all 0.3s ease;
+  transition: all 0.5s ease;
   display: inline-block;
 }
 
 [data-action="next"]:hover:not(:disabled) {
   border-color: var(--accent-primary);
   color: var(--accent-primary);
-  transform: translateX(4px);
+  transform: translateX(10px) scale(1.02);
   background: var(--bg-card);
   padding-right: 2.5rem;
   padding-left: 2rem;
@@ -210,28 +218,122 @@
 
 [data-action="next"]:hover:not(:disabled)::after {
   opacity: 1;
-  transform: translateX(4px);
+  transform: translateX(6px);
+}
+
+/* ANIMACIÓN PARA EL BOTÓN "SIGUIENTE" AL HACER CLICK */
+[data-action="next"].clicked {
+  animation: nextButtonClick 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes nextButtonClick {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(0.92) translateX(5px);
+  }
+  60% {
+    transform: scale(1.08) translateX(-5px);
+  }
+  100% {
+    transform: scale(1) translateX(0);
+  }
 }
 
 [data-action="prev"]:disabled,
 [data-action="next"]:disabled {
   opacity: 0.3;
   cursor: not-allowed;
-  transform: none;
+  transform: none !important;
 }
 
 .stepper-content {
   display: block;
-  animation: contentFade 0.4s ease;
+  animation: contentFade 0.8s ease;
 }
 
 @keyframes contentFade {
   from {
     opacity: 0;
-    transform: translateX(10px);
+    transform: translateX(40px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
   }
+}
+@keyframes slideFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(50px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Animación de salida - hacia la izquierda */
+@keyframes slideFadeOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-40px) scale(0.95);
+  }
+}
+
+/* Animación para el botón "Siguiente" al hacer click */
+[data-action="next"].clicked {
+  animation: nextButtonClick 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes nextButtonClick {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(0.92) translateX(5px);
+  }
+  60% {
+    transform: scale(1.08) translateX(-5px);
+  }
+  100% {
+    transform: scale(1) translateX(0);
+  }
+}
+
+/* Animación para el botón "Anterior" al hacer click */
+[data-action="prev"].clicked {
+  animation: prevButtonClick 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes prevButtonClick {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(0.92) translateX(-5px);
+  }
+  60% {
+    transform: scale(1.08) translateX(5px);
+  }
+  100% {
+    transform: scale(1) translateX(0);
+  }
+}
+
+/* Asegurar que los paneles tengan el estilo correcto */
+.step-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--space-2xl) !important;
+  width: 100%;
+}
+
+.step-panel[hidden] {
+  display: none !important;
 }
