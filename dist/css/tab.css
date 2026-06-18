@@ -12,7 +12,24 @@
 .tabs-buttons {
   display: flex;
   gap: 0;
-  position: relative;
+  position: relative; /* Indispensable para posicionar correctamente la barra indicadora */
+}
+
+/* --- LA BARRA DESLIZANTE INFERIOR ---
+  Su ancho y su posición 'X' se calculan dinámicamente con JavaScript
+*/
+.tab-indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--accent-primary);
+  width: 0;
+  transform: translateX(0);
+  /* Sincronizamos la curva de aceleración con la del cambio de color del texto */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, width;
+  z-index: 2;
 }
 
 .tab-btn {
@@ -24,33 +41,28 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: var(--text-caption);
+  color: var(--text-caption); /* Color opaco por defecto */
   cursor: pointer;
-  transition: all 0.3s ease;
   position: relative;
+  z-index: 1;
+  
+  /* --- EFECTO DE RESALTADO SINCRONIZADO ---
+    Usamos exactamente la misma duración (0.3s) y curva bezier que el indicador.
+    Esto hace que la palabra se ilumine a medida que la barra pasa por ella.
+  */
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tab-btn::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 1rem;
-  right: 1rem;
-  height: 2px;
-  background: transparent;
-  transition: all 0.3s ease;
-}
-
+/* Estado al pasar el cursor (sigue siendo inmediato y sutil) */
 .tab-btn:hover {
   color: var(--text-headline);
 }
 
+/* --- ESTADO ACTIVO (TEXTO ILUMINADO) ---
+  Cuando cambia el tab, el color transiciona suavemente imitando el movimiento físico
+*/
 .tab-btn.active {
   color: var(--accent-primary);
-}
-
-.tab-btn.active::after {
-  background: var(--accent-primary);
 }
 
 .tabs-content {
